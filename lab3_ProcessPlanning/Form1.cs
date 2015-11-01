@@ -1,4 +1,5 @@
-﻿using System;
+﻿using lab3_ProcessPlanning;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -28,6 +29,7 @@ namespace ProcessesPlanning
         private int priorityMax;
         private int processorFreeTime;
 
+        private List<DataForGraph> dataList;
 
         public Form1()
         {
@@ -59,6 +61,8 @@ namespace ProcessesPlanning
         {
             _processes = new BindingList<Process>();
             results = new BindingList<Result>();
+            dataList = new List<DataForGraph>();
+            DataForGraph.Deserialize(ref dataList);
 
             executionTimeMin = 1;
             executionTimeMax = 10;
@@ -78,6 +82,8 @@ namespace ProcessesPlanning
                 if (doProcessesThread.IsAlive)
                     doProcessesThread.Abort();
 
+            DataForGraph.Deserialize(ref dataList);
+            processorFreeTime = 0;
             buttonStop.Enabled = true;
             buttonStart.Enabled = false;
             programIsRunning = true;
@@ -110,15 +116,31 @@ namespace ProcessesPlanning
                 }
                 else
                 {
-                    Thread.Sleep(50);
-                    processorFreeTime += 50;
+                    Thread.Sleep(10);
+                    processorFreeTime += 10;
                 }
                     
             }
-            this.Invoke((Action) (() =>
+            ActionsAfterProgramStops();
+        }
+
+        private void ActionsAfterProgramStops()
+        {
+            long averagePauseTime = CountAveragePauseTime();
+            this.Invoke((Action)(() =>
             {
-                labelAveragePauseTime.Text = CountAveragePauseTime().ToString();
-            }));    
+                labelAveragePauseTime.Text = averagePauseTime.ToString();
+            }));
+            double processorFreePercent = (processorFreeTime * 100) / results.Max(x => x.EndTime);
+            dataList.Add(new DataForGraph()
+            {
+                arisingTimeMin = this.arisingTimeMin,
+                arisingTimeMax = this.arisingTimeMax,
+                averagePauseTime = averagePauseTime,
+                processorFreePercent = processorFreePercent
+            });
+            DataForGraph.Serialize(dataList);
+            MessageBox.Show("Done!");
         }
 
         private void GenerateProcesses(BindingList<Process> _processes)
