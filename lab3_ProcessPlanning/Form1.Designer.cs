@@ -44,6 +44,11 @@
             this.maskedTextBoxArisingTimeIntervalMax = new System.Windows.Forms.MaskedTextBox();
             this.maskedTextBoxArisingTimeIntervalMin = new System.Windows.Forms.MaskedTextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.maskedTextBoxPriorityMax = new System.Windows.Forms.MaskedTextBox();
+            this.maskedTextBoxPriorityMin = new System.Windows.Forms.MaskedTextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.labelAveragePauseTime = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProcesses)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -190,11 +195,63 @@
             this.label2.TabIndex = 10;
             this.label2.Text = "Arising time interval";
             // 
+            // maskedTextBoxPriorityMax
+            // 
+            this.maskedTextBoxPriorityMax.Location = new System.Drawing.Point(641, 97);
+            this.maskedTextBoxPriorityMax.Mask = "99";
+            this.maskedTextBoxPriorityMax.Name = "maskedTextBoxPriorityMax";
+            this.maskedTextBoxPriorityMax.Size = new System.Drawing.Size(20, 20);
+            this.maskedTextBoxPriorityMax.TabIndex = 15;
+            this.maskedTextBoxPriorityMax.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
+            this.maskedTextBoxPriorityMax.TextChanged += new System.EventHandler(this.maskedTextBoxPriorityMax_TextChanged);
+            // 
+            // maskedTextBoxPriorityMin
+            // 
+            this.maskedTextBoxPriorityMin.Location = new System.Drawing.Point(615, 97);
+            this.maskedTextBoxPriorityMin.Mask = "99";
+            this.maskedTextBoxPriorityMin.Name = "maskedTextBoxPriorityMin";
+            this.maskedTextBoxPriorityMin.Size = new System.Drawing.Size(20, 20);
+            this.maskedTextBoxPriorityMin.TabIndex = 14;
+            this.maskedTextBoxPriorityMin.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
+            this.maskedTextBoxPriorityMin.TextChanged += new System.EventHandler(this.maskedTextBoxPriorityMin_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(496, 100);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(75, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Priority interval";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(499, 141);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(107, 13);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "Average pause time: ";
+            // 
+            // labelAveragePauseTime
+            // 
+            this.labelAveragePauseTime.AutoSize = true;
+            this.labelAveragePauseTime.Location = new System.Drawing.Point(600, 141);
+            this.labelAveragePauseTime.Name = "labelAveragePauseTime";
+            this.labelAveragePauseTime.Size = new System.Drawing.Size(16, 13);
+            this.labelAveragePauseTime.TabIndex = 17;
+            this.labelAveragePauseTime.Text = "...";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(717, 505);
+            this.Controls.Add(this.labelAveragePauseTime);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.maskedTextBoxPriorityMax);
+            this.Controls.Add(this.maskedTextBoxPriorityMin);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.maskedTextBoxArisingTimeIntervalMax);
             this.Controls.Add(this.maskedTextBoxArisingTimeIntervalMin);
             this.Controls.Add(this.label2);
@@ -236,6 +293,11 @@
         private System.Windows.Forms.MaskedTextBox maskedTextBoxArisingTimeIntervalMax;
         private System.Windows.Forms.MaskedTextBox maskedTextBoxArisingTimeIntervalMin;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.MaskedTextBox maskedTextBoxPriorityMax;
+        private System.Windows.Forms.MaskedTextBox maskedTextBoxPriorityMin;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label labelAveragePauseTime;
     }
 }
 

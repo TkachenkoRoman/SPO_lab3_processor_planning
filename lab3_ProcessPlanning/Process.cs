@@ -8,6 +8,7 @@ namespace ProcessesPlanning
         public int Id { get; set; }
         public long ArrivalTime { get; set; }
         public int ExecutionTime { get; set; }
+        public int Priority { get; set; }
         private long pauseTime;
         private Stopwatch watch;
 
@@ -20,12 +21,13 @@ namespace ProcessesPlanning
             watch = Stopwatch.StartNew();
         }
 
-        public Process(int id, long arrivalTime, int executionTime)
+        public Process(int id, long arrivalTime, int executionTime, int priority)
         {
             Id = id;
             ArrivalTime = arrivalTime;
             ExecutionTime = executionTime;
             pauseTime = 0;
+            Priority = priority;
             watch = Stopwatch.StartNew();
         }
 

@@ -24,6 +24,10 @@ namespace ProcessesPlanning
         private int executionTimeMax;
         private int arisingTimeMin;
         private int arisingTimeMax;
+        private int priorityMin;
+        private int priorityMax;
+        private int processorFreeTime;
+
 
         public Form1()
         {
@@ -47,6 +51,8 @@ namespace ProcessesPlanning
             maskedTextBoxExecutionTimeIntervalMax.Text = executionTimeMax.ToString();
             maskedTextBoxArisingTimeIntervalMin.Text = arisingTimeMin.ToString();
             maskedTextBoxArisingTimeIntervalMax.Text = arisingTimeMax.ToString();
+            maskedTextBoxPriorityMin.Text = priorityMin.ToString();
+            maskedTextBoxPriorityMax.Text = priorityMax.ToString();
         }
 
         private void InitializeData()
@@ -58,6 +64,8 @@ namespace ProcessesPlanning
             executionTimeMax = 10;
             arisingTimeMin = 0;
             arisingTimeMax = 10;
+            priorityMin = 1;
+            priorityMax = 3;
         }
 
 
@@ -89,20 +97,28 @@ namespace ProcessesPlanning
             {
                 if (_processes.Count > 0)
                 {
-                    List<Process> sortedProcesses = _processes.OrderBy(x => x.ExecutionTime).ToList();
+                    List<Process> sortedProcesses = _processes.OrderBy(x => x.Priority).ToList();
                     sortedProcesses[0].Execute();
-                    this.Invoke((Action)(() =>
+                    this.Invoke((Action) (() =>
                     {
-                        results.First(x => x.ProcessId == sortedProcesses[0].Id).PauseTime = sortedProcesses[0].GetPauseTime();
+                        results.First(x => x.ProcessId == sortedProcesses[0].Id).PauseTime =
+                            sortedProcesses[0].GetPauseTime();
                         results.First(x => x.ProcessId == sortedProcesses[0].Id).EndTime = watch.ElapsedMilliseconds;
                         _processes.Remove(_processes.First(x => x.Id == sortedProcesses[0].Id));
                         dataGridViewResults.Refresh();
-                    }));   
+                    }));
                 }
-                //else 
-                //    Thread.Sleep(50);
+                else
+                {
+                    Thread.Sleep(50);
+                    processorFreeTime += 50;
+                }
+                    
             }
-
+            this.Invoke((Action) (() =>
+            {
+                labelAveragePauseTime.Text = CountAveragePauseTime().ToString();
+            }));    
         }
 
         private void GenerateProcesses(BindingList<Process> _processes)
@@ -113,7 +129,8 @@ namespace ProcessesPlanning
                 int arrivalTime = random.Next(arisingTimeMin, arisingTimeMax);
                 Thread.Sleep(arrivalTime * 1000);
                 int executionTime = random.Next(executionTimeMin, executionTimeMax) * 1000;
-                Process current = new Process(++processId, watch.ElapsedMilliseconds, executionTime);
+                int priority = random.Next(priorityMin, priorityMax);
+                Process current = new Process(++processId, watch.ElapsedMilliseconds, executionTime, priority);
                 Result currRes = new Result() { ProcessId = processId };
                 this.Invoke((Action)(() =>
                 {
@@ -129,6 +146,24 @@ namespace ProcessesPlanning
             buttonStop.Enabled = false;
             buttonStart.Enabled = true;
             programIsRunning = false;
+        }
+
+        private long CountAveragePauseTime()
+        {
+            int amountOfRes = 0;
+            long allPauseTime = 0;
+            foreach (var res in results)
+            {
+                if (res.EndTime != 0)
+                {
+                    amountOfRes++;
+                    allPauseTime += res.PauseTime;
+                }
+            }
+            if (amountOfRes > 0)
+                return allPauseTime/amountOfRes;
+            else
+                return 0;
         }
 
 
@@ -208,6 +243,47 @@ namespace ProcessesPlanning
                 }
             }
         }
+
+        private void maskedTextBoxPriorityMin_TextChanged(object sender, EventArgs e)
+        {
+            if (Int32.TryParse(maskedTextBoxPriorityMin.Text, out priorityMin) == false)
+                priorityMin = 0;
+            else
+            {
+                if (priorityMin < 1 || priorityMin > 32)
+                {
+                    MessageBox.Show("Insert number between 1 and 32");
+                }
+                else if (priorityMax < priorityMin)
+                {
+                    MessageBox.Show("Wrong interval. min must be < max");
+                    priorityMin = priorityMax;
+                    maskedTextBoxPriorityMin.Text = priorityMin.ToString();
+                }
+            }
+        }
+
+        private void maskedTextBoxPriorityMax_TextChanged(object sender, EventArgs e)
+        {
+            if (Int32.TryParse(maskedTextBoxPriorityMax.Text, out priorityMax) == false)
+                priorityMax = 0;
+            else
+            {
+                if (priorityMax < 1 || priorityMax > 32)
+                {
+                    MessageBox.Show("Insert number between 1 and 32");
+                }
+                else if (priorityMax < priorityMin)
+                {
+                    MessageBox.Show("Wrong interval. max must be > min");
+                    priorityMax = priorityMin;
+                    maskedTextBoxPriorityMax.Text = priorityMax.ToString();
+                }
+            }
+        }
+
 #endregion
+
+        
     }
 }
