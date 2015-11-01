@@ -22,11 +22,14 @@ namespace lab3_ProcessPlanning
 
         static public void Deserialize(ref List<DataForGraph> dataList)
         {
-            XmlSerializer deserializer = new XmlSerializer(typeof(List<DataForGraph>));
-            TextReader reader = new StreamReader("dataforgraph.xml");
-            object obj = deserializer.Deserialize(reader);
-            dataList = (List<DataForGraph>)obj;
-            reader.Close();
+            if (File.Exists("dataforgraph.xml"))
+            {
+                XmlSerializer deserializer = new XmlSerializer(typeof(List<DataForGraph>));
+                TextReader reader = new StreamReader("dataforgraph.xml");
+                object obj = deserializer.Deserialize(reader);
+                dataList = (List<DataForGraph>)obj;
+                reader.Close();
+            }        
         }
 
     }

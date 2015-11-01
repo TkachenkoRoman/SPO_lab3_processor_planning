@@ -30,13 +30,11 @@
         {
             this.components = new System.ComponentModel.Container();
             this.dataGridViewProcesses = new System.Windows.Forms.DataGridView();
-            this.bindingSourceProcesses = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonStart = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dataGridViewResults = new System.Windows.Forms.DataGridView();
-            this.bindingSourceResults = new System.Windows.Forms.BindingSource(this.components);
             this.buttonStop = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.maskedTextBoxExecutionTimeIntervalMin = new System.Windows.Forms.MaskedTextBox();
@@ -49,12 +47,16 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.labelAveragePauseTime = new System.Windows.Forms.Label();
+            this.bindingSourceProcesses = new System.Windows.Forms.BindingSource(this.components);
+            this.bindingSourceResults = new System.Windows.Forms.BindingSource(this.components);
+            this.buttonGraph1 = new System.Windows.Forms.Button();
+            this.buttonGraph2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProcesses)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewResults)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceResults)).BeginInit();
             this.SuspendLayout();
             // 
@@ -96,7 +98,7 @@
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(511, 412);
+            this.buttonStart.Location = new System.Drawing.Point(495, 423);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(116, 23);
             this.buttonStart.TabIndex = 4;
@@ -129,7 +131,7 @@
             // 
             // buttonStop
             // 
-            this.buttonStop.Location = new System.Drawing.Point(511, 452);
+            this.buttonStop.Location = new System.Drawing.Point(495, 452);
             this.buttonStop.Name = "buttonStop";
             this.buttonStop.Size = new System.Drawing.Size(116, 23);
             this.buttonStop.TabIndex = 6;
@@ -168,10 +170,10 @@
             // 
             // maskedTextBoxArisingTimeIntervalMax
             // 
-            this.maskedTextBoxArisingTimeIntervalMax.Location = new System.Drawing.Point(641, 68);
-            this.maskedTextBoxArisingTimeIntervalMax.Mask = "99";
+            this.maskedTextBoxArisingTimeIntervalMax.Location = new System.Drawing.Point(664, 68);
+            this.maskedTextBoxArisingTimeIntervalMax.Mask = "99999";
             this.maskedTextBoxArisingTimeIntervalMax.Name = "maskedTextBoxArisingTimeIntervalMax";
-            this.maskedTextBoxArisingTimeIntervalMax.Size = new System.Drawing.Size(20, 20);
+            this.maskedTextBoxArisingTimeIntervalMax.Size = new System.Drawing.Size(41, 20);
             this.maskedTextBoxArisingTimeIntervalMax.TabIndex = 12;
             this.maskedTextBoxArisingTimeIntervalMax.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             this.maskedTextBoxArisingTimeIntervalMax.TextChanged += new System.EventHandler(this.maskedTextBoxArisingTimeIntervalMax_TextChanged);
@@ -179,9 +181,9 @@
             // maskedTextBoxArisingTimeIntervalMin
             // 
             this.maskedTextBoxArisingTimeIntervalMin.Location = new System.Drawing.Point(615, 68);
-            this.maskedTextBoxArisingTimeIntervalMin.Mask = "99";
+            this.maskedTextBoxArisingTimeIntervalMin.Mask = "99999";
             this.maskedTextBoxArisingTimeIntervalMin.Name = "maskedTextBoxArisingTimeIntervalMin";
-            this.maskedTextBoxArisingTimeIntervalMin.Size = new System.Drawing.Size(20, 20);
+            this.maskedTextBoxArisingTimeIntervalMin.Size = new System.Drawing.Size(43, 20);
             this.maskedTextBoxArisingTimeIntervalMin.TabIndex = 11;
             this.maskedTextBoxArisingTimeIntervalMin.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             this.maskedTextBoxArisingTimeIntervalMin.TextChanged += new System.EventHandler(this.maskedTextBoxArisingTimeIntervalMin_TextChanged);
@@ -242,11 +244,33 @@
             this.labelAveragePauseTime.TabIndex = 17;
             this.labelAveragePauseTime.Text = "...";
             // 
+            // buttonGraph1
+            // 
+            this.buttonGraph1.Location = new System.Drawing.Point(492, 215);
+            this.buttonGraph1.Name = "buttonGraph1";
+            this.buttonGraph1.Size = new System.Drawing.Size(75, 23);
+            this.buttonGraph1.TabIndex = 18;
+            this.buttonGraph1.Text = "Graph1";
+            this.buttonGraph1.UseVisualStyleBackColor = true;
+            this.buttonGraph1.Click += new System.EventHandler(this.buttonGraph1_Click);
+            // 
+            // buttonGraph2
+            // 
+            this.buttonGraph2.Location = new System.Drawing.Point(573, 215);
+            this.buttonGraph2.Name = "buttonGraph2";
+            this.buttonGraph2.Size = new System.Drawing.Size(75, 23);
+            this.buttonGraph2.TabIndex = 19;
+            this.buttonGraph2.Text = "Graph2";
+            this.buttonGraph2.UseVisualStyleBackColor = true;
+            this.buttonGraph2.Click += new System.EventHandler(this.buttonGraph2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(717, 505);
+            this.Controls.Add(this.buttonGraph2);
+            this.Controls.Add(this.buttonGraph1);
             this.Controls.Add(this.labelAveragePauseTime);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.maskedTextBoxPriorityMax);
@@ -265,11 +289,11 @@
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProcesses)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewResults)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceResults)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -298,6 +322,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label labelAveragePauseTime;
+        private System.Windows.Forms.Button buttonGraph1;
+        private System.Windows.Forms.Button buttonGraph2;
     }
 }
 

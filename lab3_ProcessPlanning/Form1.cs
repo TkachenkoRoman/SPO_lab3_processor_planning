@@ -132,6 +132,10 @@ namespace ProcessesPlanning
                 labelAveragePauseTime.Text = averagePauseTime.ToString();
             }));
             double processorFreePercent = (processorFreeTime * 100) / results.Max(x => x.EndTime);
+            if (dataList.Exists(x => x.arisingTimeMin == this.arisingTimeMin && x.arisingTimeMax == this.arisingTimeMax))
+                dataList.Remove(
+                    dataList.First(
+                        x => x.arisingTimeMin == this.arisingTimeMin && x.arisingTimeMax == this.arisingTimeMax));
             dataList.Add(new DataForGraph()
             {
                 arisingTimeMin = this.arisingTimeMin,
@@ -149,7 +153,7 @@ namespace ProcessesPlanning
             while (programIsRunning)
             {
                 int arrivalTime = random.Next(arisingTimeMin, arisingTimeMax);
-                Thread.Sleep(arrivalTime * 1000);
+                Thread.Sleep(arrivalTime);
                 int executionTime = random.Next(executionTimeMin, executionTimeMax) * 1000;
                 int priority = random.Next(priorityMin, priorityMax);
                 Process current = new Process(++processId, watch.ElapsedMilliseconds, executionTime, priority);
@@ -234,7 +238,7 @@ namespace ProcessesPlanning
                 arisingTimeMin = 0;
             else
             {
-                if (arisingTimeMin < 0 || arisingTimeMin > 99)
+                if (arisingTimeMin < 0 || arisingTimeMin > 99999)
                 {
                     MessageBox.Show("Insert number between 0 and 100");
                 }
@@ -253,7 +257,7 @@ namespace ProcessesPlanning
                 arisingTimeMax = 0;
             else
             {
-                if (arisingTimeMax < 0 || arisingTimeMax > 99)
+                if (arisingTimeMax < 0 || arisingTimeMax > 99999)
                 {
                     MessageBox.Show("Insert number between 0 and 100");
                 }
@@ -305,6 +309,18 @@ namespace ProcessesPlanning
         }
 
 #endregion
+
+        private void buttonGraph1_Click(object sender, EventArgs e)
+        {
+            Graph1 graph1 = new Graph1(1);
+            graph1.ShowDialog();
+        }
+
+        private void buttonGraph2_Click(object sender, EventArgs e)
+        {
+            Graph1 graph1 = new Graph1(2);
+            graph1.ShowDialog();
+        }
 
         
     }
