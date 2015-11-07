@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.dataGridViewProcesses = new System.Windows.Forms.DataGridView();
+            this.bindingSourceProcesses = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonStart = new System.Windows.Forms.Button();
@@ -47,16 +48,17 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.labelAveragePauseTime = new System.Windows.Forms.Label();
-            this.bindingSourceProcesses = new System.Windows.Forms.BindingSource(this.components);
             this.bindingSourceResults = new System.Windows.Forms.BindingSource(this.components);
             this.buttonGraph1 = new System.Windows.Forms.Button();
             this.buttonGraph2 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBoxProcessesAmount = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProcesses)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewResults)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceResults)).BeginInit();
             this.SuspendLayout();
             // 
@@ -264,11 +266,30 @@
             this.buttonGraph2.UseVisualStyleBackColor = true;
             this.buttonGraph2.Click += new System.EventHandler(this.buttonGraph2_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(495, 404);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(94, 13);
+            this.label5.TabIndex = 20;
+            this.label5.Text = "Processes amount";
+            // 
+            // textBoxProcessesAmount
+            // 
+            this.textBoxProcessesAmount.Location = new System.Drawing.Point(595, 401);
+            this.textBoxProcessesAmount.Name = "textBoxProcessesAmount";
+            this.textBoxProcessesAmount.Size = new System.Drawing.Size(63, 20);
+            this.textBoxProcessesAmount.TabIndex = 21;
+            this.textBoxProcessesAmount.TextChanged += new System.EventHandler(this.textBoxProcessesAmount_TextChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(717, 505);
+            this.Controls.Add(this.textBoxProcessesAmount);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.buttonGraph2);
             this.Controls.Add(this.buttonGraph1);
             this.Controls.Add(this.labelAveragePauseTime);
@@ -289,11 +310,11 @@
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProcesses)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewResults)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceProcesses)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceResults)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -324,6 +345,8 @@
         private System.Windows.Forms.Label labelAveragePauseTime;
         private System.Windows.Forms.Button buttonGraph1;
         private System.Windows.Forms.Button buttonGraph2;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBoxProcessesAmount;
     }
 }
 

@@ -28,6 +28,9 @@ namespace ProcessesPlanning
         private int priorityMin;
         private int priorityMax;
         private int processorFreeTime;
+        private int processesAmount;
+
+        private static Mutex mut = new Mutex();
 
         private List<DataForGraph> dataList;
 
@@ -55,6 +58,7 @@ namespace ProcessesPlanning
             maskedTextBoxArisingTimeIntervalMax.Text = arisingTimeMax.ToString();
             maskedTextBoxPriorityMin.Text = priorityMin.ToString();
             maskedTextBoxPriorityMax.Text = priorityMax.ToString();
+            textBoxProcessesAmount.Text = processesAmount.ToString();
         }
 
         private void InitializeData()
@@ -70,6 +74,7 @@ namespace ProcessesPlanning
             arisingTimeMax = 10;
             priorityMin = 1;
             priorityMax = 3;
+            processesAmount = 150;
         }
 
 
@@ -82,19 +87,44 @@ namespace ProcessesPlanning
                 if (doProcessesThread.IsAlive)
                     doProcessesThread.Abort();
 
-            DataForGraph.Deserialize(ref dataList);
-            processorFreeTime = 0;
-            buttonStop.Enabled = true;
-            buttonStart.Enabled = false;
-            programIsRunning = true;
-            results.Clear();
-            _processes.Clear();
-            dataGridViewProcesses.Refresh();
+            processId = 0;
 
-            generateProcessesThread = new Thread(() => GenerateProcesses(_processes));
-            generateProcessesThread.Start();
-            doProcessesThread = new Thread(() => DoProcesses(_processes));
-            doProcessesThread.Start();
+            if (ValidateAll())
+            {
+                DataForGraph.Deserialize(ref dataList);
+                processorFreeTime = 0;
+                buttonStop.Enabled = true;
+                buttonStart.Enabled = false;
+                programIsRunning = true;
+                results.Clear();
+                _processes.Clear();
+                dataGridViewProcesses.Refresh();
+
+                generateProcessesThread = new Thread(() => GenerateProcesses(_processes));
+                generateProcessesThread.Start();
+                doProcessesThread = new Thread(() => DoProcesses(_processes));
+                doProcessesThread.Start();
+            }           
+        }
+
+        private bool ValidateAll()
+        {
+            if (executionTimeMax < executionTimeMin)
+            {
+                MessageBox.Show("Wrong executionTime interval. min must be < max");
+                return false;
+            }
+            if (arisingTimeMax < arisingTimeMin)
+            {
+                MessageBox.Show("Wrong arisingTime interval. min must be < max");
+                return false;
+            }
+            if (priorityMax < priorityMin)
+            {
+                MessageBox.Show("Wrong interval. min must be < max");
+                return false;
+            }
+            return true;
         }
 
         private void DoProcesses(BindingList<Process> _processes)
@@ -103,7 +133,9 @@ namespace ProcessesPlanning
             {
                 if (_processes.Count > 0)
                 {
+                    mut.WaitOne();
                     List<Process> sortedProcesses = _processes.OrderBy(x => x.Priority).ToList();
+                    mut.ReleaseMutex();
                     sortedProcesses[0].Execute();
                     this.Invoke((Action) (() =>
                     {
@@ -154,24 +186,31 @@ namespace ProcessesPlanning
             {
                 int arrivalTime = random.Next(arisingTimeMin, arisingTimeMax);
                 Thread.Sleep(arrivalTime);
-                int executionTime = random.Next(executionTimeMin, executionTimeMax) * 1000;
+                int executionTime = random.Next(executionTimeMin, executionTimeMax) * 10;
                 int priority = random.Next(priorityMin, priorityMax);
                 Process current = new Process(++processId, watch.ElapsedMilliseconds, executionTime, priority);
                 Result currRes = new Result() { ProcessId = processId };
                 this.Invoke((Action)(() =>
                 {
+                    mut.WaitOne();
                     _processes.Add(current);
+                    mut.ReleaseMutex();
                     results.Add(currRes);
                     dataGridViewProcesses.Refresh();
-                }));              
+                }));
+                if (processId >= processesAmount)
+                    buttonStop_Click(this.buttonStop, new EventArgs());
             }
         }
 
         private void buttonStop_Click(object sender, EventArgs e)
         {
-            buttonStop.Enabled = false;
-            buttonStart.Enabled = true;
-            programIsRunning = false;
+            this.Invoke((Action) (() =>
+            {
+                buttonStop.Enabled = false;
+                buttonStart.Enabled = true;
+                programIsRunning = false;
+            }));           
         }
 
         private long CountAveragePauseTime()
@@ -204,12 +243,6 @@ namespace ProcessesPlanning
                 {
                     MessageBox.Show("Insert number between 0 and 100");
                 }
-                else if (executionTimeMax < executionTimeMin)
-                {
-                    MessageBox.Show("Wrong interval. min must be < max");
-                    executionTimeMin = executionTimeMax;
-                    maskedTextBoxExecutionTimeIntervalMin.Text = executionTimeMin.ToString();
-                }
             }
         }
 
@@ -222,12 +255,6 @@ namespace ProcessesPlanning
                 if (executionTimeMax < 0 || executionTimeMax > 99)
                 {
                     MessageBox.Show("Insert number between 0 and 100");
-                }
-                else if (executionTimeMax < executionTimeMin)
-                {
-                    MessageBox.Show("Wrong interval. max must be > min");
-                    executionTimeMax = executionTimeMin;
-                    maskedTextBoxExecutionTimeIntervalMax.Text = executionTimeMax.ToString();
                 }
             }
         }
@@ -242,12 +269,6 @@ namespace ProcessesPlanning
                 {
                     MessageBox.Show("Insert number between 0 and 100");
                 }
-                else if (arisingTimeMax < arisingTimeMin)
-                {
-                    MessageBox.Show("Wrong interval. min must be < max");
-                    arisingTimeMin = arisingTimeMax;
-                    maskedTextBoxArisingTimeIntervalMin.Text = arisingTimeMin.ToString();
-                }
             }
         }
 
@@ -260,12 +281,6 @@ namespace ProcessesPlanning
                 if (arisingTimeMax < 0 || arisingTimeMax > 99999)
                 {
                     MessageBox.Show("Insert number between 0 and 100");
-                }
-                else if (arisingTimeMax < arisingTimeMin)
-                {
-                    MessageBox.Show("Wrong interval. max must be > min");
-                    arisingTimeMax = arisingTimeMin;
-                    maskedTextBoxArisingTimeIntervalMax.Text = arisingTimeMax.ToString();
                 }
             }
         }
@@ -280,12 +295,6 @@ namespace ProcessesPlanning
                 {
                     MessageBox.Show("Insert number between 1 and 32");
                 }
-                else if (priorityMax < priorityMin)
-                {
-                    MessageBox.Show("Wrong interval. min must be < max");
-                    priorityMin = priorityMax;
-                    maskedTextBoxPriorityMin.Text = priorityMin.ToString();
-                }
             }
         }
 
@@ -298,12 +307,6 @@ namespace ProcessesPlanning
                 if (priorityMax < 1 || priorityMax > 32)
                 {
                     MessageBox.Show("Insert number between 1 and 32");
-                }
-                else if (priorityMax < priorityMin)
-                {
-                    MessageBox.Show("Wrong interval. max must be > min");
-                    priorityMax = priorityMin;
-                    maskedTextBoxPriorityMax.Text = priorityMax.ToString();
                 }
             }
         }
@@ -320,6 +323,21 @@ namespace ProcessesPlanning
         {
             Graph1 graph1 = new Graph1(2);
             graph1.ShowDialog();
+        }
+
+        private void textBoxProcessesAmount_TextChanged(object sender, EventArgs e)
+        {
+            if (Int32.TryParse(textBoxProcessesAmount.Text, out processesAmount) == false)
+            {
+                MessageBox.Show("Must be integer number");
+            }
+            else
+            {
+                if (processesAmount < 0)
+                {
+                    MessageBox.Show("Insert number above 0");
+                }
+            }
         }
 
         
