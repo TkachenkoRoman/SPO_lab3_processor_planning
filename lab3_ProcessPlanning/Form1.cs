@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ProcessesPlanning
@@ -15,6 +16,9 @@ namespace ProcessesPlanning
         private BindingList<Result> results;
         private Random random;
         private bool programIsRunning;
+        private bool workDone;
+        private bool test1Running;
+        private bool test2Running;
         private int processId;
         private Stopwatch watch;
 
@@ -32,13 +36,12 @@ namespace ProcessesPlanning
 
         private static Mutex mut = new Mutex();
 
-        private List<DataForGraph> dataList;
+        private List<DataForGraph1> dataList;
 
         public Form1()
         {
             InitializeData();
             InitializeComponent();
-            SetInitialValuesInControls();
 
             random = new Random();
             programIsRunning = false;
@@ -47,38 +50,75 @@ namespace ProcessesPlanning
             dataGridViewProcesses.AutoGenerateColumns = true;
             dataGridViewProcesses.DataSource = bindingSourceProcesses;
             bindingSourceResults.DataSource = results;
-            dataGridViewResults.DataSource = bindingSourceResults;
+            dataGridViewResults.DataSource = bindingSourceResults;          
         }
 
-        private void SetInitialValuesInControls()
+        private void Form1_Load(object sender, EventArgs e)
         {
-            maskedTextBoxExecutionTimeIntervalMin.Text = executionTimeMin.ToString();
-            maskedTextBoxExecutionTimeIntervalMax.Text = executionTimeMax.ToString();
-            maskedTextBoxArisingTimeIntervalMin.Text = arisingTimeMin.ToString();
-            maskedTextBoxArisingTimeIntervalMax.Text = arisingTimeMax.ToString();
-            maskedTextBoxPriorityMin.Text = priorityMin.ToString();
-            maskedTextBoxPriorityMax.Text = priorityMax.ToString();
-            textBoxProcessesAmount.Text = processesAmount.ToString();
+            RefreshValuesInControls();
+        }
+
+        private void RefreshValuesInControls()
+        {
+            this.Invoke((Action)(() =>
+            {
+                maskedTextBoxExecutionTimeIntervalMin.Text = executionTimeMin.ToString();
+                maskedTextBoxExecutionTimeIntervalMax.Text = executionTimeMax.ToString();
+                maskedTextBoxArisingTimeIntervalMin.Text = arisingTimeMin.ToString();
+                maskedTextBoxArisingTimeIntervalMax.Text = arisingTimeMax.ToString();
+                maskedTextBoxPriorityMin.Text = priorityMin.ToString();
+                maskedTextBoxPriorityMax.Text = priorityMax.ToString();
+                textBoxProcessesAmount.Text = processesAmount.ToString();
+            }));           
         }
 
         private void InitializeData()
         {
             _processes = new BindingList<Process>();
             results = new BindingList<Result>();
-            dataList = new List<DataForGraph>();
-            DataForGraph.Deserialize(ref dataList);
+            dataList = new List<DataForGraph1>();
+            //DataForGraph1.Deserialize(ref dataList);
 
-            executionTimeMin = 1;
+            executionTimeMin = 5;
             executionTimeMax = 10;
-            arisingTimeMin = 0;
-            arisingTimeMax = 10;
+            arisingTimeMin = 10;
+            arisingTimeMax = 20;
             priorityMin = 1;
-            priorityMax = 3;
+            priorityMax = 15;
             processesAmount = 150;
         }
 
+        private void RunTest1(int min, int max, int step)
+        {
+            test1Running = true;
+            test2Running = false;
+
+            for (int i = min; i <= max - step; i+=step)
+            {
+                workDone = false;
+
+                arisingTimeMin = i;
+                arisingTimeMax = i + step;
+                RefreshValuesInControls();
+                RunApp();
+
+                while (true)
+                {
+                    if (!programIsRunning && workDone)
+                        break;
+                    else
+                        Thread.Sleep(100);
+                }
+            }
+        }
 
         private void buttonStart_Click(object sender, EventArgs e)
+        {
+            DataForGraph1.Deserialize(ref dataList);
+            RunApp();
+        }
+
+        private void RunApp()
         {
             if (generateProcessesThread != null)
                 if (generateProcessesThread.IsAlive)
@@ -91,20 +131,24 @@ namespace ProcessesPlanning
 
             if (ValidateAll())
             {
-                DataForGraph.Deserialize(ref dataList);
+                //DataForGraph1.Deserialize(ref dataList);
                 processorFreeTime = 0;
-                buttonStop.Enabled = true;
-                buttonStart.Enabled = false;
                 programIsRunning = true;
-                results.Clear();
-                _processes.Clear();
-                dataGridViewProcesses.Refresh();
-
+                
+                this.Invoke((Action) (() =>
+                {
+                    results.Clear();
+                    _processes.Clear();
+                    buttonStop.Enabled = true;
+                    buttonStart.Enabled = false;
+                    dataGridViewProcesses.Refresh();
+                }));
+                                               
                 generateProcessesThread = new Thread(() => GenerateProcesses(_processes));
                 generateProcessesThread.Start();
                 doProcessesThread = new Thread(() => DoProcesses(_processes));
                 doProcessesThread.Start();
-            }           
+            }  
         }
 
         private bool ValidateAll()
@@ -158,6 +202,51 @@ namespace ProcessesPlanning
 
         private void ActionsAfterProgramStops()
         {
+            if (test1Running)
+                CreateGraph1Data();
+            if (test2Running)
+                CreateGraph3Data();
+            if (!test2Running && !test1Running)
+            {
+                CreateGraph1Data();
+                CreateGraph3Data();
+            }
+            workDone = true;
+            //MessageBox.Show("Done!");
+        }
+
+        private void CreateGraph3Data()
+        {
+            var dataList = new List<DataForGraph3>();
+            var groupedResults = results.GroupBy(x => x.ProcessPriority).Select(grp => grp.ToList()).ToList();
+            foreach (var grp in groupedResults)
+            {
+                int amountOfRes = 0;
+                long allPauseTime = 0;
+                
+                foreach (var res in grp)
+                {
+                    if (res.EndTime != 0)
+                    {
+                        amountOfRes++;
+                        allPauseTime += res.PauseTime;
+                    }
+                }
+                if (amountOfRes > 0)
+                {
+                    long averagePauseTime = allPauseTime / amountOfRes;
+                    dataList.Add(new DataForGraph3()
+                    {
+                        averagePauseTime = averagePauseTime, 
+                        priority = grp[0].ProcessPriority
+                    });
+                }
+            }
+            DataForGraph3.Serialize(dataList);
+        }
+
+        private void CreateGraph1Data()
+        {
             long averagePauseTime = CountAveragePauseTime();
             this.Invoke((Action)(() =>
             {
@@ -168,15 +257,14 @@ namespace ProcessesPlanning
                 dataList.Remove(
                     dataList.First(
                         x => x.arisingTimeMin == this.arisingTimeMin && x.arisingTimeMax == this.arisingTimeMax));
-            dataList.Add(new DataForGraph()
+            dataList.Add(new DataForGraph1()
             {
                 arisingTimeMin = this.arisingTimeMin,
                 arisingTimeMax = this.arisingTimeMax,
                 averagePauseTime = averagePauseTime,
                 processorFreePercent = processorFreePercent
             });
-            DataForGraph.Serialize(dataList);
-            MessageBox.Show("Done!");
+            DataForGraph1.Serialize(dataList);
         }
 
         private void GenerateProcesses(BindingList<Process> _processes)
@@ -189,7 +277,7 @@ namespace ProcessesPlanning
                 int executionTime = random.Next(executionTimeMin, executionTimeMax) * 10;
                 int priority = random.Next(priorityMin, priorityMax);
                 Process current = new Process(++processId, watch.ElapsedMilliseconds, executionTime, priority);
-                Result currRes = new Result() { ProcessId = processId };
+                Result currRes = new Result() { ProcessId = processId, ProcessPriority = priority };
                 this.Invoke((Action)(() =>
                 {
                     mut.WaitOne();
@@ -230,6 +318,8 @@ namespace ProcessesPlanning
             else
                 return 0;
         }
+
+        
 
 
 #region ui masked textboxes validation
@@ -313,17 +403,6 @@ namespace ProcessesPlanning
 
 #endregion
 
-        private void buttonGraph1_Click(object sender, EventArgs e)
-        {
-            Graph1 graph1 = new Graph1(1);
-            graph1.ShowDialog();
-        }
-
-        private void buttonGraph2_Click(object sender, EventArgs e)
-        {
-            Graph1 graph1 = new Graph1(2);
-            graph1.ShowDialog();
-        }
 
         private void textBoxProcessesAmount_TextChanged(object sender, EventArgs e)
         {
@@ -340,6 +419,51 @@ namespace ProcessesPlanning
             }
         }
 
+
+        private void inputFlowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Graph1 graph1 = new Graph1(1);
+            graph1.ShowDialog();
+        }
+
+        private void processorFreeTimePercentageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Graph1 graph2 = new Graph1(2);
+            graph2.ShowDialog();
+        }
+
+        private void prioritiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Graph1 graph3 = new Graph1(3);
+            graph3.ShowDialog();
+        }
+
+        private void runTestSet1ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Test1 test1 = new Test1();
+            var result = test1.ShowDialog();
+            if (result == DialogResult.OK)
+            {                
+                Thread Test1Thread = new Thread(() => RunTest1(test1.ArisingTimeMin, test1.ArisingTimeMax, test1.Step));
+                Test1Thread.Start();
+            }
+        }
+
+        private void runTest2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            test2Running = true;
+            test1Running = false;
+
+            priorityMin = 1;
+            priorityMax = 32;
+            arisingTimeMin = 15;
+            arisingTimeMax = 15;
+            executionTimeMin = 15;
+            executionTimeMax = 20;
+
+            RefreshValuesInControls();
+            RunApp();
+        }
         
     }
 }

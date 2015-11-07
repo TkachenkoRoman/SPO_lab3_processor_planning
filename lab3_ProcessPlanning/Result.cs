@@ -9,6 +9,7 @@ namespace ProcessesPlanning
     class Result
     {
         public int ProcessId { get; set; }
+        public int ProcessPriority { get; set; }
         public long EndTime { get; set; }
         public long PauseTime { get; set; }
     }

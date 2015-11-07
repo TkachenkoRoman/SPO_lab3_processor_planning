@@ -59,7 +59,7 @@
             this.ClientSize = new System.Drawing.Size(662, 484);
             this.Controls.Add(this.chart1);
             this.Name = "Graph1";
-            this.Text = "Graph1";
+            this.Text = "Graph";
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.ResumeLayout(false);
 
